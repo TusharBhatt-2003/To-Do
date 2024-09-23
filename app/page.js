@@ -1,101 +1,147 @@
-import Image from "next/image";
+'use client'
+import React, { useState } from 'react'
 
-export default function Home() {
+function Page() {
+  const [task, setTask] = useState("")
+  const [desc, setDesc] = useState('')
+  const [mainTask, setMainTask] = useState([])
+  const [isEditing, setIsEditing] = useState(false)
+  const [currentTaskIndex, setCurrentTaskIndex] = useState(null)
+  const [filter, setFilter] = useState('all') // "all", "completed", or "incomplete"
+
+  const submitHandler = (e) => {
+    e.preventDefault()
+    if (isEditing) {
+      // Update the existing task
+      let updatedTasks = [...mainTask]
+      updatedTasks[currentTaskIndex] = { task, desc, completed: updatedTasks[currentTaskIndex].completed }
+      setMainTask(updatedTasks)
+      setIsEditing(false)
+      setCurrentTaskIndex(null)
+    } else {
+      // Add a new task
+      setMainTask([...mainTask, { task, desc, completed: false }])
+    }
+    setTask("")
+    setDesc("")
+  }
+
+  const deleteHandler = (i) => {
+    let copyTask = [...mainTask]
+    copyTask.splice(i, 1)
+    setMainTask(copyTask)
+  }
+
+  const completeHandler = (i) => {
+    let updatedTasks = [...mainTask]
+    updatedTasks[i].completed = !updatedTasks[i].completed
+    setMainTask(updatedTasks)
+  }
+
+  const editHandler = (i) => {
+    setTask(mainTask[i].task)
+    setDesc(mainTask[i].desc)
+    setIsEditing(true)
+    setCurrentTaskIndex(i)
+  }
+
+  // Function to filter tasks based on the selected filter
+  const filteredTasks = mainTask.filter((t) => {
+    if (filter === 'completed') return t.completed
+    if (filter === 'incomplete') return !t.completed
+    return true // for 'all'
+  })
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <>
+      <div className='flex flex-col items-center p-5'>
+        <h1 className='bg-black text-3xl text-white text-center font-bold rounded px-3 m-2'>
+        To-Do List
+        </h1>
+        <form className='flex flex-col items-center mt-2'
+          onSubmit={submitHandler}>
+          <input type='text'
+            className='border-black border-2 rounded-lg text-xl m-5 p-1'
+            placeholder='Enter your task...'
+            value={task}
+            onChange={(e) => setTask(e.target.value)}>
+          </input>
+          <input type='text'
+            className='border-black border-2 rounded-lg text-xl m-5 p-1'
+            placeholder='Enter description here'
+            value={desc}
+            onChange={(e) => setDesc(e.target.value)}>
+          </input>
+          <button className='w-24 bg-black text-white rounded-lg m-5 py-1 px-2 '>
+            {isEditing ? "Update Task" : "Add To List"}
+          </button>
+        </form>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+        {/* Filter Buttons */}
+        <div className="flex space-x-2 m-5">
+          <button
+            className={`focus:text-black focus:border-black hover:text-zinc-900 hover:border-b-2 hover:border-black border-b-2 text-zinc-500  px-3 py-1`}
+            onClick={() => setFilter('all')}>
+            All Tasks
+          </button>
+          <button
+            className={`focus:text-black focus:border-black hover:text-zinc-900 hover:border-b-2 hover:border-black border-b-2 text-zinc-500 px-3 py-1`}
+            onClick={() => setFilter('completed')}>
+            Completed
+          </button>
+          <button
+            className={`focus:text-black focus:border-black hover:text-zinc-900 hover:border-b-2 hover:border-black border-b-2 text-zinc-500 px-3 py-1`}
+            onClick={() => setFilter('incomplete')}>
+            Incomplete
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+
+        <hr />
+        <div className='w-full lg:w-1/2 p-8 bg-black text-white rounded-md'>
+          <ul>
+            {filteredTasks.length === 0 ? (
+              <h2
+              className='text-center'
+              >No tasks available</h2>
+            ) : (
+              filteredTasks.map((t, i) => (
+                <div
+                  className='flex justify-between items-center mb-1 '
+                  key={i}>
+                  <div className={`w-1/3 text-lg font-semibold ${t.completed ? 'line-through text-gray-500' : ''}`}>
+                    <h2>{t.task}</h2>
+                  </div>
+                  <div className={`w-1/3 text-sm font-light ${t.completed ? 'line-through text-gray-500' : ''}`}>
+                    <h5>{t.desc}</h5>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => completeHandler(i)}
+                      className='rounded-lg px-2 py-1'>
+                      {t.completed ? <svg className='undo-btn' xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#ffffff" viewBox="0 0 256 256"><path d="M224,128a96,96,0,0,1-94.71,96H128A95.38,95.38,0,0,1,62.1,197.8a8,8,0,0,1,11-11.63A80,80,0,1,0,71.43,71.39a3.07,3.07,0,0,1-.26.25L44.59,96H72a8,8,0,0,1,0,16H24a8,8,0,0,1-8-8V56a8,8,0,0,1,16,0V85.8L60.25,60A96,96,0,0,1,224,128Z"></path></svg> 
+                                   : <svg className='cmplt-btn' xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#ffffff" viewBox="0 0 256 256"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"></path></svg>}
+                    </button>
+                    {!t.completed && (
+                      <button
+                        onClick={() => editHandler(i)}
+                        className= 'text-white rounded-lg px-2 py-1'>
+                        <svg className='edit-btn' width="20px" height="20px" viewBox="0 0 24.00 24.00" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M21.2799 6.40005L11.7399 15.94C10.7899 16.89 7.96987 17.33 7.33987 16.7C6.70987 16.07 7.13987 13.25 8.08987 12.3L17.6399 2.75002C17.8754 2.49308 18.1605 2.28654 18.4781 2.14284C18.7956 1.99914 19.139 1.92124 19.4875 1.9139C19.8359 1.90657 20.1823 1.96991 20.5056 2.10012C20.8289 2.23033 21.1225 2.42473 21.3686 2.67153C21.6147 2.91833 21.8083 3.21243 21.9376 3.53609C22.0669 3.85976 22.1294 4.20626 22.1211 4.55471C22.1128 4.90316 22.0339 5.24635 21.8894 5.5635C21.7448 5.88065 21.5375 6.16524 21.2799 6.40005V6.40005Z" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M11 4H6C4.93913 4 3.92178 4.42142 3.17163 5.17157C2.42149 5.92172 2 6.93913 2 8V18C2 19.0609 2.42149 20.0783 3.17163 20.8284C3.92178 21.5786 4.93913 22 6 22H17C19.21 22 20 20.2 20 18V13" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                      </button>
+                    )}
+                    <button
+                      onClick={() => deleteHandler(i)}
+                      className='rounded-lg px-2 py-1'>
+                     <svg className='dlt-btn' xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#ffffff" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path></svg>
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </ul>
+        </div>
+      </div>
+    </>
+  )
 }
+
+export default Page

@@ -2,26 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+.dlt-btn:hover {
+    fill: red;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.cmplt-btn:hover {
+     fill: green;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+.edit-btn:hover {
+  opacity: 70%;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+.undo-btn:hover {
+  opacity: 70%;
 }
